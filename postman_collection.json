@@ -1,0 +1,841 @@
+{
+    "info": {
+        "_postman_id": "order-payment-api-collection",
+        "name": "Order & Payment Management API",
+        "description": "Complete API documentation for the Order and Payment Management system.\n\n## Authentication\nThis API uses JWT (JSON Web Tokens) for authentication. After logging in or registering, use the returned `access_token` in the Authorization header:\n\n```\nAuthorization: Bearer <token>\n```\n\n## Base URL\n```\nhttp://localhost:8000/api\n```",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8000/api",
+            "type": "string"
+        },
+        {
+            "key": "token",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Authentication",
+            "description": "User authentication endpoints including registration, login, logout, and token management.",
+            "item": [
+                {
+                    "name": "Register",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.collectionVariables.set('token', jsonData.data.access_token);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"Password123!\",\n    \"password_confirmation\": \"Password123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/register",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "register"
+                            ]
+                        },
+                        "description": "Register a new user account. Returns an access token upon successful registration."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "Created",
+                            "code": 201,
+                            "body": "{\n    \"success\": true,\n    \"message\": \"User registered successfully\",\n    \"data\": {\n        \"user\": {\n            \"id\": 1,\n            \"name\": \"John Doe\",\n            \"email\": \"john@example.com\",\n            \"created_at\": \"2024-01-07T12:00:00.000000Z\"\n        },\n        \"access_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...\",\n        \"token_type\": \"bearer\",\n        \"expires_in\": 3600\n    }\n}"
+                        },
+                        {
+                            "name": "Validation Error",
+                            "status": "Unprocessable Entity",
+                            "code": 422,
+                            "body": "{\n    \"message\": \"The email has already been taken.\",\n    \"errors\": {\n        \"email\": [\"The email has already been taken.\"]\n    }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.collectionVariables.set('token', jsonData.data.access_token);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"Password123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Authenticate user and get JWT token."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Login successful\",\n    \"data\": {\n        \"user\": {\n            \"id\": 1,\n            \"name\": \"John Doe\",\n            \"email\": \"john@example.com\"\n        },\n        \"access_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...\",\n        \"token_type\": \"bearer\",\n        \"expires_in\": 3600\n    }\n}"
+                        },
+                        {
+                            "name": "Invalid Credentials",
+                            "status": "Unauthorized",
+                            "code": 401,
+                            "body": "{\n    \"success\": false,\n    \"message\": \"Invalid credentials\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/me",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "me"
+                            ]
+                        },
+                        "description": "Get the authenticated user's profile."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": 1,\n        \"name\": \"John Doe\",\n        \"email\": \"john@example.com\",\n        \"created_at\": \"2024-01-07T12:00:00.000000Z\"\n    }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/logout",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "logout"
+                            ]
+                        },
+                        "description": "Logout and invalidate the current token."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Successfully logged out\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Refresh Token",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.collectionVariables.set('token', jsonData.data.access_token);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/refresh",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "refresh"
+                            ]
+                        },
+                        "description": "Refresh the JWT token."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"access_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...\",\n        \"token_type\": \"bearer\",\n        \"expires_in\": 3600\n    }\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Orders",
+            "description": "Order management endpoints including CRUD operations and status transitions.",
+            "item": [
+                {
+                    "name": "List Orders",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/orders?per_page=15&status=&search=",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "orders"
+                            ],
+                            "query": [
+                                {
+                                    "key": "per_page",
+                                    "value": "15",
+                                    "description": "Items per page"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "",
+                                    "description": "Filter by status (pending, confirmed, cancelled)"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "description": "Search by order number"
+                                }
+                            ]
+                        },
+                        "description": "Get paginated list of orders with optional filtering."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"order_number\": \"ORD-ABCD1234\",\n            \"status\": \"pending\",\n            \"status_label\": \"Pending\",\n            \"total_amount\": 299.98,\n            \"total_amount_formatted\": \"$299.98\",\n            \"items_count\": 2,\n            \"created_at\": \"2024-01-07T12:00:00.000000Z\"\n        }\n    ],\n    \"links\": {},\n    \"meta\": {\n        \"current_page\": 1,\n        \"per_page\": 15,\n        \"total\": 25\n    }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Create Order",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"items\": [\n        {\n            \"product_name\": \"Laptop Pro 15\\\"\",\n            \"quantity\": 1,\n            \"unit_price\": 1299.99\n        },\n        {\n            \"product_name\": \"Wireless Mouse\",\n            \"quantity\": 2,\n            \"unit_price\": 49.99\n        }\n    ],\n    \"notes\": \"Please deliver to office\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/orders",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "orders"
+                            ]
+                        },
+                        "description": "Create a new order with items."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "Created",
+                            "code": 201,
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Order created successfully\",\n    \"data\": {\n        \"id\": 1,\n        \"order_number\": \"ORD-ABCD1234\",\n        \"status\": \"pending\",\n        \"total_amount\": 1399.97,\n        \"items\": [\n            {\n                \"id\": 1,\n                \"product_name\": \"Laptop Pro 15\\\"\",\n                \"quantity\": 1,\n                \"unit_price\": 1299.99,\n                \"total_price\": 1299.99\n            },\n            {\n                \"id\": 2,\n                \"product_name\": \"Wireless Mouse\",\n                \"quantity\": 2,\n                \"unit_price\": 49.99,\n                \"total_price\": 99.98\n            }\n        ]\n    }\n}"
+                        },
+                        {
+                            "name": "Validation Error",
+                            "status": "Unprocessable Entity",
+                            "code": 422,
+                            "body": "{\n    \"message\": \"At least one item is required.\",\n    \"errors\": {\n        \"items\": [\"At least one item is required.\"]\n    }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Order",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "orders",
+                                "1"
+                            ]
+                        },
+                        "description": "Get order details by ID."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": 1,\n        \"order_number\": \"ORD-ABCD1234\",\n        \"status\": \"pending\",\n        \"total_amount\": 1399.97,\n        \"items\": [...],\n        \"payments\": [],\n        \"can\": {\n            \"update\": true,\n            \"delete\": true,\n            \"confirm\": true,\n            \"cancel\": true,\n            \"pay\": false\n        }\n    }\n}"
+                        },
+                        {
+                            "name": "Not Found",
+                            "status": "Not Found",
+                            "code": 404,
+                            "body": "{\n    \"success\": false,\n    \"message\": \"Order with ID 999 not found\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Update Order",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"notes\": \"Updated delivery instructions\",\n    \"items\": [\n        {\n            \"product_name\": \"Updated Product\",\n            \"quantity\": 3,\n            \"unit_price\": 99.99\n        }\n    ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "orders",
+                                "1"
+                            ]
+                        },
+                        "description": "Update an existing order. Only pending orders can be updated."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Order updated successfully\",\n    \"data\": {...}\n}"
+                        },
+                        {
+                            "name": "Cannot Update",
+                            "status": "Unprocessable Entity",
+                            "code": 422,
+                            "body": "{\n    \"success\": false,\n    \"message\": \"Only pending orders can be updated\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Delete Order",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "orders",
+                                "1"
+                            ]
+                        },
+                        "description": "Delete an order. Orders with payments cannot be deleted."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Order deleted successfully\"\n}"
+                        },
+                        {
+                            "name": "Has Payments",
+                            "status": "Conflict",
+                            "code": 409,
+                            "body": "{\n    \"success\": false,\n    \"message\": \"Cannot delete order with associated payments\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Confirm Order",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/1/confirm",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "orders",
+                                "1",
+                                "confirm"
+                            ]
+                        },
+                        "description": "Confirm a pending order."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Order confirmed successfully\",\n    \"data\": {\n        \"id\": 1,\n        \"status\": \"confirmed\"\n    }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Cancel Order",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/1/cancel",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "orders",
+                                "1",
+                                "cancel"
+                            ]
+                        },
+                        "description": "Cancel an order. Orders with successful payments cannot be cancelled."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Order cancelled successfully\",\n    \"data\": {\n        \"id\": 1,\n        \"status\": \"cancelled\"\n    }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "My Orders",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/my-orders",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "orders",
+                                "my-orders"
+                            ]
+                        },
+                        "description": "Get orders for the authenticated user."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Payments",
+            "description": "Payment processing and management endpoints.",
+            "item": [
+                {
+                    "name": "List Payments",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/payments?per_page=15&status=&gateway=",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "payments"
+                            ],
+                            "query": [
+                                {
+                                    "key": "per_page",
+                                    "value": "15"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "",
+                                    "description": "Filter by status (pending, successful, failed)"
+                                },
+                                {
+                                    "key": "gateway",
+                                    "value": "",
+                                    "description": "Filter by gateway (credit_card, paypal, etc.)"
+                                }
+                            ]
+                        },
+                        "description": "Get paginated list of payments."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"payment_number\": \"PAY-ABCDEFGHIJ\",\n            \"gateway\": \"credit_card\",\n            \"gateway_display_name\": \"Credit Card\",\n            \"amount\": 299.98,\n            \"status\": \"successful\",\n            \"gateway_transaction_id\": \"CC-XXXXXXXXXX\",\n            \"processed_at\": \"2024-01-07T12:05:00.000000Z\"\n        }\n    ],\n    \"meta\": {\n        \"current_page\": 1,\n        \"per_page\": 15,\n        \"total\": 10\n    }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Payment",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/payments/1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "payments",
+                                "1"
+                            ]
+                        },
+                        "description": "Get payment details by ID."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "body": "{\n    \"success\": true,\n    \"data\": {\n        \"id\": 1,\n        \"payment_number\": \"PAY-ABCDEFGHIJ\",\n        \"gateway\": \"credit_card\",\n        \"amount\": 299.98,\n        \"status\": \"successful\",\n        \"order\": {...}\n    }\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Order Payments",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/1/payments",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "orders",
+                                "1",
+                                "payments"
+                            ]
+                        },
+                        "description": "Get all payments for a specific order."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Process Payment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"payment_method\": \"credit_card\",\n    \"metadata\": {\n        \"card_last_four\": \"4242\",\n        \"card_brand\": \"Visa\"\n    }\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/orders/1/payments",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "orders",
+                                "1",
+                                "payments"
+                            ]
+                        },
+                        "description": "Process a payment for an order. Payment can only be processed for confirmed orders."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "Created",
+                            "code": 201,
+                            "body": "{\n    \"success\": true,\n    \"message\": \"Payment processed successfully\",\n    \"data\": {\n        \"id\": 1,\n        \"payment_number\": \"PAY-ABCDEFGHIJ\",\n        \"gateway\": \"credit_card\",\n        \"amount\": 299.98,\n        \"status\": \"successful\",\n        \"gateway_transaction_id\": \"CC-XXXXXXXXXX\",\n        \"processed_at\": \"2024-01-07T12:05:00.000000Z\"\n    }\n}"
+                        },
+                        {
+                            "name": "Order Not Confirmed",
+                            "status": "Unprocessable Entity",
+                            "code": 422,
+                            "body": "{\n    \"success\": false,\n    \"message\": \"Payments can only be processed for confirmed orders\"\n}"
+                        },
+                        {
+                            "name": "Already Paid",
+                            "status": "Conflict",
+                            "code": 409,
+                            "body": "{\n    \"success\": false,\n    \"message\": \"This order has already been paid\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Get Payment Methods",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/payment-methods",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "payment-methods"
+                            ]
+                        },
+                        "description": "Get list of available payment methods/gateways."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "status": "OK",
+                            "code": 200,
+                            "body": "{\n    \"success\": true,\n    \"data\": [\n        {\n            \"name\": \"credit_card\",\n            \"display_name\": \"Credit Card\",\n            \"enabled\": true,\n            \"supports_refunds\": true\n        },\n        {\n            \"name\": \"paypal\",\n            \"display_name\": \"PayPal\",\n            \"enabled\": true,\n            \"supports_refunds\": true\n        },\n        {\n            \"name\": \"stripe\",\n            \"display_name\": \"Stripe\",\n            \"enabled\": true,\n            \"supports_refunds\": true\n        }\n    ]\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Health Check",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/health",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "health"
+                    ]
+                },
+                "description": "Check API health status."
+            },
+            "response": [
+                {
+                    "name": "Success",
+                    "status": "OK",
+                    "code": 200,
+                    "body": "{\n    \"status\": \"ok\",\n    \"timestamp\": \"2024-01-07T12:00:00.000000Z\",\n    \"version\": \"1.0.0\"\n}"
+                }
+            ]
+        }
+    ]
+}
